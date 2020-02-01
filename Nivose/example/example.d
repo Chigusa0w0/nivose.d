@@ -10,6 +10,8 @@ import core.sys.windows.windef;
 
 int main()
 {
+    version (Windows) {} else static assert(0, "The demo is expected only being runned under Windows system");
+
     auto ni = new Kernel32; // Kernel32 class is a shortcut provided in Nivose.
     scope (exit) ni.dispose(); // Release resources after use. If you want to call DLL `dispose` function, you can write `dispose_` to call it
 
@@ -18,14 +20,14 @@ int main()
 
     writeln();
     writeln("First 10 modules of explorer.exe:");
-    ComplexDemo();
+    complexDemo();
 
     readln();
     return 0;
 }
 
-
-void ComplexDemo()
+/// list first ten modules of windows explorer.exe
+void complexDemo()
 {
     PROCESSENTRY32 entry; // Type definitions are from core.sys.windows
     HMODULE[1024] hMods;
@@ -46,8 +48,8 @@ void ComplexDemo()
             if (entry.szExeFile.to!string.startsWith("explorer.exe"))
             {
                 auto moduleSnapshot = CreateToolhelp32Snapshot(0x18, entry.th32ProcessID); // This CreateToolhelp32Snapshot is from core.sys.windows
+
                 if (NULL == moduleSnapshot) break;
-                
                 scope(exit) kernel32.CloseHandle(moduleSnapshot);
 
                 MODULEENTRY32 moduleEntry = { dwSize: MODULEENTRY32.sizeof };

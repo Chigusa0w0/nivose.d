@@ -17,16 +17,28 @@ else version (Posix)
     import core.sys.posix.dlfcn;
 }
 
+/**
+Nivose dynamic library accessor for windows **kernel32.dll**
+*/
 class Kernel32 : Nivose!"Windows"
 {
+    /**
+    Create a instance of Nivose for windows **kernel32.dll**
+    */
     this()
     {
         super("kernel32.dll");
     }
 }
 
+/**
+Nivose dynamic library accessor for windows **user32.dll**
+*/
 class User32 : Nivose!"Windows"
 {
+    /**
+    Create a instance of Nivose for windows **user32.dll**
+    */
     this()
     {
         super("user32.dll");
@@ -49,7 +61,7 @@ class Nivose(string expType)
     Params:
     libPath = Path to the dynamic library file.
     loadFlags = Flags for lower level library loading API. Please refer to system API reference to fill in the appropriate value.
-    _useCache = Caching the function pointer to prevent performance loss.
+    useCache = Caching the function pointer to prevent performance loss.
     */
     this(string libPath, int loadFlags = 0, bool useCache = true)
     {
@@ -65,21 +77,24 @@ class Nivose(string expType)
         closeLibrary();
     }
     
+    /**
+        Invoke the specified third-party library function with the same name.
+    */
     template opDispatch(string name)
     {
         enum funcName = name.endsWith("_") ? name.take(name.length - 1).to!string : name;
 
         /**
         Invoke the specified third-party library function with the same name.
-        If the function name has been defined in Nivose, or has underscore(s) at the end, please add an underscore after the function name to redirect.
+        If the function name has been defined in Nivose, or has underscore(s) at the end, *please add an underscore after the function name to redirect.*
         Params:
             arguments = The parameters of the third-party library function.
             Please view the third-party library documentation for types and available values for the function.
-            You must ensure that the parameter types are correct.
+            *You must ensure that the parameter types are correct.*
         Returns: 
             The return value of the third-party library function. 
             The default type of this value is a 32-bit unsigned integer (`uint`).
-            You must specify the correct return value type through the function template.
+            *You must specify the correct return value type through the function template.*
         */
         TRetn opDispatch(TRetn = uint, TArgs...)(TArgs arguments)
         if (isType!TRetn)
@@ -170,7 +185,9 @@ class Nivose(string expType)
             auto err = dlerror();
             if (func == null)
             {
-                throw new Exception(err == null ? "dlsym successed but no valid function address returned" : "dlsym failed with error message: " ~ err.to!string ~ ".");
+                throw new Exception(err == null 
+                ? "dlsym successed but no valid function address returned" 
+                : "dlsym failed with error message: " ~ err.to!string ~ ".");
             }
 
             return func;
