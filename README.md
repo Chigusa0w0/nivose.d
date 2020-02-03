@@ -55,7 +55,7 @@ scope (exit) k32.dispose();
 // Use the template parameter to specify return type.
 // These two should almost always have same result.
 // Type information and `GetProcAddress` works will be generated at compile time.
-writeln("Runtime invoke GetTickCount() Got: ",ni.invoke!int("GetTickCount"));
+writeln("Runtime invoke GetTickCount() Got: ",k32.invoke!int("GetTickCount"));
 writeln("Nivose GetTickCount() Got: ", k32.GetTickCount!int());
 writeln("core.sys.windows GetTickCount() Got: ", GetTickCount());
 
