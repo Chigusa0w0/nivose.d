@@ -79,7 +79,6 @@ class Nivose(string expType)
 
     /**
     Invoke the specified third-party library function with a provided name.
-    If the function name has been defined in Nivose, or has underscore(s) at the end, *please add an underscore after the function name to redirect.*
     Params:
     funcName = The name of the function to be invoked.
     arguments = The parameters of the third-party library function.
