@@ -76,6 +76,48 @@ class Nivose(string expType)
     {
         closeLibrary();
     }
+
+    /**
+    Invoke the specified third-party library function with a provided name.
+    If the function name has been defined in Nivose, or has underscore(s) at the end, *please add an underscore after the function name to redirect.*
+    Params:
+    funcName = The name of the function to be invoked.
+    arguments = The parameters of the third-party library function.
+    Please view the third-party library documentation for types and available values for the function.
+    *You must ensure that the parameter types are correct.*
+    Returns: 
+    The return value of the third-party library function. 
+    The default type of this value is a 32-bit unsigned integer (`uint`).
+    *You must specify the correct return value type through the function template.*
+    */
+    TRetn invoke(TRetn = uint, TArgs...)(string funcName, TArgs arguments)
+        if (isType!TRetn)
+        {
+            mixin(importsGenerator!TArgs());
+            mixin(importsGenerator!TRetn());
+
+            mixin("extern(" ~ expType ~ ") " ~ TRetn.stringof ~ " function" ~ TArgs.stringof ~ " funcTemplate;");
+
+            if (_useCache)
+            {
+                auto cachePtr = (funcName in _funcCache);
+                if (cachePtr !is null)
+                {
+                    auto funcPtr = cast(typeof(funcTemplate))*cachePtr;
+                    return funcPtr(arguments);
+                }
+            }
+
+            auto funcTempPtr = findFunction(_handle, funcName);
+
+            if (_useCache)
+            {
+                _funcCache[funcName] = funcTempPtr;
+            }
+
+            auto funcPtr = cast(typeof(funcTemplate)) funcTempPtr;
+            return funcPtr(arguments);
+        }
     
     /**
         Invoke the specified third-party library function with the same name.
@@ -172,6 +214,7 @@ class Nivose(string expType)
 
             if (func == NULL)
             {
+                auto s = GetLastError();
                 throw new Exception("GetProcAddress failed with error code: " ~ GetLastError().to!string ~ ".");
             }
 

@@ -15,6 +15,12 @@ int main()
     auto ni = new Kernel32; // Kernel32 class is a shortcut provided in Nivose.
     scope (exit) ni.dispose(); // Release resources after use. If you want to call DLL `dispose` function, you can write `dispose_` to call it
 
+    
+    auto getTickCount = "";
+    if (!__ctfe)
+        getTickCount = "GetTickCount"; // Ensure getTickCount is only assigned at runtime
+
+    writeln("Runtime invoke GetTickCount() Got: ",ni.invoke!int(getTickCount)); // Invoke with a name provided at runtime
     writeln("Nivose GetTickCount() Got: ", ni.GetTickCount!(int)()); // Use template parameter to specify return type
     writeln("core.sys.windows GetTickCount() Got: ", GetTickCount());
 
